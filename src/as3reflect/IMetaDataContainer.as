@@ -39,10 +39,10 @@ package as3reflect {
 		function hasMetaData(key:String):Boolean;
 
 		/**
-		 * Returns the MetaData object that corresponds to the given key. If no MetaData object was found, null is
-		 * returned.
+		 * Returns the array of MetaData object that corresponds to the given key. If no MetaData object was found,
+		 * an empty array is returned.
 		 */
-		function getMetaData(key:String):MetaData;
+		function getMetaData(key:String):Array;
 
 		/**
 		 * Returns an array of all metadata objects in this container.
