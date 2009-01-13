@@ -264,38 +264,38 @@ class TypeXmlParser {
 	public static function parseMembers(memberClass:Class, members:XMLList, declaringType:Type, isStatic:Boolean):Array {
 		var result:Array = [];
 		for each (var m:XML in members) {
-		var member:IMember = new memberClass(m.@name, Type.forName(m.@type), declaringType, isStatic);
-		parseMetaData(m.metadata, member);
-		result.push(member);
+			var member:IMember = new memberClass(m.@name, Type.forName(m.@type), declaringType, isStatic);
+			parseMetaData(m.metadata, member);
+			result.push(member);
 		}
 		return result;
 	}
 	private static function parseMethodsByModifier(type:Type, methodsXML:XMLList, isStatic:Boolean):Array {
 		var result:Array = [];
 		for each (var methodXML:XML in methodsXML) {
-		var params:Array = [];
-		for each(var paramXML:XML in methodXML.parameter) {
-			var paramType:Type = Type.forName(paramXML.@type);
-			var param:Parameter = new Parameter(paramXML.@index, paramType, paramXML.@optional);
-			params.push(param);
-		}
-		var method:Method = new Method(type, methodXML.@name, isStatic, params, Type.forName(methodXML.@returnType));
-		parseMetaData(methodXML.metadata, method);
-		result.push(method);
+			var params:Array = [];
+			for each(var paramXML:XML in methodXML.parameter) {
+				var paramType:Type = Type.forName(paramXML.@type);
+				var param:Parameter = new Parameter(paramXML.@index, paramType, paramXML.@optional);
+				params.push(param);
+			}
+			var method:Method = new Method(type, methodXML.@name, isStatic, params, Type.forName(methodXML.@returnType));
+			parseMetaData(methodXML.metadata, method);
+			result.push(method);
 		}
 		return result;
 	}
 	private static function parseAccessorsByModifier(type:Type, accessorsXML:XMLList, isStatic:Boolean):Array {
 		var result:Array = [];
 		for each (var accessorXML:XML in accessorsXML) {
-		var accessor:Accessor = new Accessor(
-						accessorXML.@name,
-						AccessorAccess.fromString(accessorXML.@access),
-						Type.forName(accessorXML.@type),
-						type,
-						isStatic);
-		parseMetaData(accessorXML.metadata, accessor);
-		result.push(accessor);
+			var accessor:Accessor = new Accessor(
+							accessorXML.@name,
+							AccessorAccess.fromString(accessorXML.@access),
+							Type.forName(accessorXML.@type),
+							type,
+							isStatic);
+			parseMetaData(accessorXML.metadata, accessor);
+			result.push(accessor);
 		}
 		return result;
 	}
@@ -304,11 +304,11 @@ class TypeXmlParser {
 	 */
 	public static function parseMetaData(metaDataNodes:XMLList, metaData:IMetaDataContainer):void {
 		for each (var metaDataXML:XML in metaDataNodes) {
-		var metaDataArgs:Array = [];
-		for each (var metaDataArgNode:XML in metaDataXML.arg) {
-			metaDataArgs.push(new MetaDataArgument(metaDataArgNode.@key, metaDataArgNode.@value));
-		}
-		metaData.addMetaData(new MetaData(metaDataXML.@name, metaDataArgs));
+			var metaDataArgs:Array = [];
+			for each (var metaDataArgNode:XML in metaDataXML.arg) {
+				metaDataArgs.push(new MetaDataArgument(metaDataArgNode.@key, metaDataArgNode.@value));
+			}
+			metaData.addMetaData(new MetaData(metaDataXML.@name, metaDataArgs));
 		}
 	}
 }
