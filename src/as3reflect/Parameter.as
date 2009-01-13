@@ -27,7 +27,11 @@ package as3reflect {
 	 * @author Christophe Herreman
 	 */
 	public class Parameter {
-
+		
+		private var _index:int;
+		private var _type:Type;
+		private var _isOptional:Boolean;
+		
 		/**
 		 * Creates a new <code>Parameter</code> object.
 		 *
@@ -52,9 +56,5 @@ package as3reflect {
 		public function get isOptional():Boolean {
 			return _isOptional;
 		}
-
-		private var _index:int;
-		private var _type:Type;
-		private var _isOptional:Boolean;
 	}
 }
