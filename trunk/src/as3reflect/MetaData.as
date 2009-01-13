@@ -42,7 +42,7 @@ package as3reflect {
 		 */
 		public function MetaData(name:String, arguments:Array = null) {
 			_name = name;
-			_arguments = arguments;
+			_arguments = (arguments == null) ? [] : arguments;
 		}
 
 		/**
