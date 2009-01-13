@@ -61,13 +61,14 @@ package as3reflect {
 		/**
 		 * @inheritDoc
 		 */
-		public function getMetaData(key:String):MetaData {
+		public function getMetaData(key:String):Array {
+			var result:Array = [];
 			for (var i:int = 0; i<_metaData.length; i++) {
 				if (MetaData(_metaData[i]).name == key) {
-					return _metaData[i];
+					result.push(_metaData[i]);
 				}
 			}
-			return null;
+			return result;
 		}
 
 	}
