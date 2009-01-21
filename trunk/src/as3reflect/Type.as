@@ -45,7 +45,7 @@ package as3reflect {
 	 * <code>var type:Type = Type.forName("MyClass");</code>
 	 * </p>
 	 *
-	 * @author Christophe Herreman
+	 * @author Christophe Herreman, Martino Piccinato
 	 */
 	public class Type extends MetaDataContainer {
 
@@ -60,6 +60,7 @@ package as3reflect {
 		private var _isDynamic:Boolean;
 		private var _isFinal:Boolean;
 		private var _isStatic:Boolean;
+		private var _constructor:Constructor;
 		private var _methods:Array;
 		private var _accessors:Array;
 		private var _staticConstants:Array;
@@ -139,7 +140,7 @@ package as3reflect {
 				result = _cache[fullyQualifiedClassName];
 			}
 			else {
-				var description:XML = describeType(clazz);
+				var description:XML = _getTypeDescription(clazz);
 				result = new Type();
 				// add the Type to the cache before assigning any values to prevent looping
 				_cache[fullyQualifiedClassName] = result;
@@ -149,6 +150,7 @@ package as3reflect {
 				result.isDynamic = description.@isDynamic;
 				result.isFinal = description.@isFinal;
 				result.isStatic = description.@isStatic;
+				result.constructor = TypeXmlParser.parseConstructor(result, description.factory.constructor);
 				result.accessors = TypeXmlParser.parseAccessors(result, description);
 				result.methods = TypeXmlParser.parseMethods(result, description);
 				result.staticConstants = TypeXmlParser.parseMembers(Constant, description.constant, result, true);
@@ -212,7 +214,10 @@ package as3reflect {
 
 		public function get isStatic():Boolean { return _isStatic; }
 		public function set isStatic(value:Boolean):void { _isStatic = value; }
-
+	
+		public function get constructor():Constructor { return _constructor; }
+		public function set constructor(constructor:Constructor):void { _constructor = constructor; }
+	
 		public function get accessors():Array { return _accessors; }
 		public function set accessors(value:Array):void { _accessors = value; }
 
@@ -234,6 +239,44 @@ package as3reflect {
 		public function get fields():Array {
 			return accessors.concat(staticConstants).concat(constants).concat(staticVariables).concat(variables);
 		}
+
+		/**
+		 * Get XML clazz description as given by flash.utils.describeType
+		 * using a workaround for bug http://bugs.adobe.com/jira/browse/FP-183
+		 * that in certain cases do not allow to retrieve complete constructor
+		 * description.
+		 */
+		private static function _getTypeDescription(clazz:Class):XML {
+			var description:XML = describeType(clazz);
+				
+			// Workaround for bug http://bugs.adobe.com/jira/browse/FP-183
+			var constructorXML:XMLList = description.factory.constructor;
+				
+			if (constructorXML && constructorXML.length() > 0) {
+				var parametersXML:XMLList = constructorXML[0].parameter;
+				if (parametersXML && parametersXML.length() > 0) {
+					// Instantiate class with all null arguments.
+					var args:Array = [];
+					for (var n:int = 0; n < parametersXML.length(); n++) {
+						args.push(null);
+					}
+					// As the constructor may throw Errors on null arguments arguments 
+					// surround it with a try/catch block
+					try {
+						ClassUtils.newInstance(clazz, args);
+					} catch (e:Error) {
+						// Do nothing (here is not a problem to hide the Error as we just need to
+						// instantiate the class once to have complete constructor
+						// parameters information
+					}
+						
+					description = describeType(clazz);
+				}
+			}
+			
+			return description;
+		}
+	
 	}
 }
 
@@ -246,11 +289,20 @@ import as3reflect.Accessor;
 import as3reflect.MetaDataArgument;
 import as3reflect.MetaData;
 import as3reflect.IMember;
+import as3reflect.Constructor;
 
 /**
  * Internal xml parser
  */
 class TypeXmlParser {
+	public static function parseConstructor(type:Type, constructorXML:XMLList):Constructor {
+	if (constructorXML.length() > 0) {
+		var params:Array = parseParameters(constructorXML[0].parameter);
+		return new Constructor(type, params);
+	} else {
+		return new Constructor(type);
+	}
+	}	
 	public static function parseMethods(type:Type, xml:XML):Array {
 		var classMethods:Array = parseMethodsByModifier(type, xml.method, true);
 		var instanceMethods:Array = parseMethodsByModifier(type, xml.factory.method, false);
@@ -273,17 +325,22 @@ class TypeXmlParser {
 	private static function parseMethodsByModifier(type:Type, methodsXML:XMLList, isStatic:Boolean):Array {
 		var result:Array = [];
 		for each (var methodXML:XML in methodsXML) {
-			var params:Array = [];
-			for each(var paramXML:XML in methodXML.parameter) {
-				var paramType:Type = Type.forName(paramXML.@type);
-				var param:Parameter = new Parameter(paramXML.@index, paramType, paramXML.@optional);
-				params.push(param);
-			}
+			var params:Array = parseParameters(methodXML.parameter);
 			var method:Method = new Method(type, methodXML.@name, isStatic, params, Type.forName(methodXML.@returnType));
 			parseMetaData(methodXML.metadata, method);
 			result.push(method);
 		}
 		return result;
+	}
+	private static function parseParameters(paramsXML:XMLList):Array {
+		var params:Array = [];
+		for each(var paramXML:XML in paramsXML) {
+		var paramType:Type = Type.forName(paramXML.@type);
+		var param:Parameter = new Parameter(paramXML.@index, paramType, paramXML.@optional == "true" ? true : false );
+		params.push(param);
+		}
+	
+		return params;
 	}
 	private static function parseAccessorsByModifier(type:Type, accessorsXML:XMLList, isStatic:Boolean):Array {
 		var result:Array = [];

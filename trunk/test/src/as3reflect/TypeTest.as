@@ -70,6 +70,45 @@ package as3reflect {
 			var errorConstant:Field = type.getField("ERROR");
 			assertEquals(LogEventLevel.ERROR, errorConstant.getValue());
 		}
+	
+	    public function testNoArgumentConstructorClass():void {
+	      var type:Type = Type.forClass(PublicClass);
+	      var constructor:Constructor = type.constructor;
+	      assertNotNull(constructor);
+	      assertNotNull(constructor.declaringType);
+	      assertEquals(constructor.declaringType.clazz, PublicClass);
+	      assertEquals(constructor.parameters.length, 0);
+	    }
+	    
+	    public function testWithArgumentConstructorClass():void {
+	
+	      var type:Type = Type.forClass(ComplexClass);
+	
+	      var constructor:Constructor= type.constructor;
+	      assertNotNull(constructor);
+	      assertNotNull(constructor.declaringType);
+	      assertEquals(constructor.declaringType.clazz, ComplexClass);
+	      assertEquals(constructor.parameters.length, 3);
+	        
+	      var firstParameter:Parameter = constructor.parameters[0];
+	        
+	      assertFalse(firstParameter.isOptional);
+	      assertEquals(1, firstParameter.index);
+	      assertEquals(String, firstParameter.type.clazz);
+	      
+	      var secondParameter:Parameter = constructor.parameters[1];
+	        
+	      assertFalse(secondParameter.isOptional);
+	      assertEquals(2, secondParameter.index);
+	      assertEquals(Number, secondParameter.type.clazz);
+	      
+	      
+	      var thirdParameter:Parameter = constructor.parameters[2];
+	
+	      assertTrue(thirdParameter.isOptional);
+	      assertEquals(3, thirdParameter.index);
+	      assertEquals(Array, thirdParameter.type.clazz);
+	    }
 
 	}
 }
