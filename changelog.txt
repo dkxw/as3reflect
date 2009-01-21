@@ -3,8 +3,15 @@ AS3REFLECT CHANGELOG
 
 Note: dates are in DD.MM.YYYY format
 
-Changes in version 1.0 (??.??.2009)
------------------------------------
+Changes in version 1.0RC3 (??.??.2009)
+--------------------------------------
+
+Package as3reflect
+* introduced Constructor class and added support for it in Type
+
+
+Changes in version 1.0RC2 (20.01.2009)
+--------------------------------------
 
 Package as3reflect
 * IMetaDataContainer.getMetaData() now returns an array of MetaData objects
