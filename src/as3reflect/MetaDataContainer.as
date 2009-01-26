@@ -55,7 +55,7 @@ package as3reflect {
 		 * @inheritDoc
 		 */
 		public function hasMetaData(key:String):Boolean {
-			return (getMetaData(key) != null);
+			return (getMetaData(key).length > 0);
 		}
 
 		/**
