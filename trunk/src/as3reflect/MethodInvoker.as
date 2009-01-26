@@ -20,6 +20,9 @@
  * THE SOFTWARE.
  */
 package as3reflect {
+	
+	import flash.utils.Proxy;
+	import flash.utils.flash_proxy;
 
 	/**
 	 * A MethodInvoker is a representation of a method call or invocation. Use this to dynamically invoke methods
@@ -94,12 +97,21 @@ package as3reflect {
 		 * Executes this MethodInvoker.
 		 */
 		public function invoke():* {
-			var type:Type = (target is Class) ? Type.forClass(target) : Type.forInstance(target) ;
-			var method:Method = type.getMethod(this.method);
-
-			if (method) {
-				return method.invoke(target, this.arguments);
+			var result:*;
+			var f:Function = target[method];
+			
+			if (f != null) {
+				result = f.apply(target, this.arguments);
 			}
+			else {
+				// we don't have a valid function, this might be a proxied method call
+				if (target is Proxy) {
+					var args:Array = [method].concat(this.arguments);
+					result = Proxy(target).flash_proxy::callProperty.apply(target, args);
+				}
+			}
+			
+			return result;
 		}
 	}
 }
