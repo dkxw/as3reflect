@@ -23,6 +23,7 @@ package as3reflect {
 
 	import as3reflect.testclasses.ComplexClass;
 	import as3reflect.testclasses.PublicClass;
+	import as3reflect.testclasses.PublicSubClass;
 	
 	import flash.utils.describeType;
 	
@@ -71,44 +72,62 @@ package as3reflect {
 			var errorConstant:Field = type.getField("ERROR");
 			assertEquals(LogEventLevel.ERROR, errorConstant.getValue());
 		}
+		
+		public function testForClass_shouldHaveCorrectDeclaringTypesOnAccessors():void {
+			var type:Type = Type.forClass(PublicSubClass);
+			for each (var accessor:Accessor in type.accessors) {
+				// acc4 is defined in PublicSubClass
+				// prototype is defined in Class
+				// all other accessors are defined in PublicClass
+				if (accessor.name == "acc4") {
+					assertEquals("PublicSubClass", accessor.declaringType.name);
+				}
+				else if (accessor.name == "prototype") {
+					assertEquals("Class", accessor.declaringType.name);
+				}
+				else {
+					assertEquals("PublicClass", accessor.declaringType.name);
+				}
+			}
+		}
 	
 		public function testNoArgumentConstructorClass():void {
-		  var type:Type = Type.forClass(PublicClass);
-		  var constructor:Constructor = type.constructor;
-		  assertNotNull(constructor);
-		  assertNotNull(constructor.declaringType);
-		  assertEquals(constructor.declaringType.clazz, PublicClass);
-		  assertEquals(constructor.parameters.length, 0);
+		var type:Type = Type.forClass(PublicClass);
+		var constructor:Constructor = type.constructor;
+		assertNotNull(constructor);
+		assertNotNull(constructor.declaringType);
+		assertEquals(constructor.declaringType.clazz, PublicClass);
+		assertEquals(constructor.parameters.length, 0);
 		}
 		
 		public function testWithArgumentConstructorClass():void {
 	
-		  var type:Type = Type.forClass(ComplexClass);
+		var type:Type = Type.forClass(ComplexClass);
 	
-		  var constructor:Constructor= type.constructor;
-		  assertNotNull(constructor);
-		  assertNotNull(constructor.declaringType);
-		  assertEquals(constructor.declaringType.clazz, ComplexClass);
-		  assertEquals(constructor.parameters.length, 3);
+		var constructor:Constructor= type.constructor;
+		assertNotNull(constructor);
+		assertNotNull(constructor.declaringType);
+		assertEquals(constructor.declaringType.clazz, ComplexClass);
+		assertEquals(constructor.parameters.length, 3);
 			
-		  var firstParameter:Parameter = constructor.parameters[0];
+		var firstParameter:Parameter = constructor.parameters[0];
 			
-		  assertFalse(firstParameter.isOptional);
-		  assertEquals(1, firstParameter.index);
-		  assertEquals(String, firstParameter.type.clazz);
-		  
-		  var secondParameter:Parameter = constructor.parameters[1];
+		assertFalse(firstParameter.isOptional);
+		assertEquals(1, firstParameter.index);
+		assertEquals(String, firstParameter.type.clazz);
+		
+		var secondParameter:Parameter = constructor.parameters[1];
 			
-		  assertFalse(secondParameter.isOptional);
-		  assertEquals(2, secondParameter.index);
-		  assertEquals(Number, secondParameter.type.clazz);
-		  
-		  
-		  var thirdParameter:Parameter = constructor.parameters[2];
+		assertFalse(secondParameter.isOptional);
+		assertEquals(2, secondParameter.index);
+		assertEquals(Number, secondParameter.type.clazz);
+		
+		
+		var thirdParameter:Parameter = constructor.parameters[2];
 	
-		  assertTrue(thirdParameter.isOptional);
-		  assertEquals(3, thirdParameter.index);
-		  assertEquals(Array, thirdParameter.type.clazz);
+		assertTrue(thirdParameter.isOptional);
+		assertEquals(3, thirdParameter.index);
+		assertEquals(Array, thirdParameter.type.clazz);
 		}
 
 	}
