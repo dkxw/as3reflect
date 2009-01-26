@@ -9,6 +9,7 @@ Changes in version 1.0RC3 (??.??.2009)
 Package as3reflect
 * introduced Constructor class and added support for it in Type
 * fixed "invoke" method on MethodInvoker to handle proxied methods correctly
+* fixed "hasMetaData" method in MetaDataContainer, always returned true
 
 
 Changes in version 1.0RC2 (20.01.2009)
