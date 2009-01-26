@@ -21,7 +21,7 @@
  */
 package as3reflect {
 
-	import flash.utils.Proxy;
+	
 
 	/**
 	 * Provides information about a single method of a class or interface.
@@ -52,15 +52,11 @@ package as3reflect {
 		 * @return the result of the method invocation, if any
 		 */
 		public function invoke(target:*, args:Array):* {
-			var result:*;
-			if (target is Proxy) {
-				//var a:Array = [name].concat(args);
-				//result = Proxy(target).flash_proxy::callProperty.apply(target, a);
-			}
-			else {
-				result = target[name].apply(target, args);
-			}
-			return result;
+			var invoker:MethodInvoker = new MethodInvoker();
+			invoker.target = target;
+			invoker.method = name;
+			invoker.arguments = args;
+			return invoker.invoke();
 		}
 
 		public function get declaringType():Type { return _declaringType; };
