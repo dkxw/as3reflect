@@ -349,7 +349,7 @@ class TypeXmlParser {
 							accessorXML.@name,
 							AccessorAccess.fromString(accessorXML.@access),
 							Type.forName(accessorXML.@type),
-							type,
+							Type.forName(accessorXML.@declaredBy),
 							isStatic);
 			parseMetaData(accessorXML.metadata, accessor);
 			result.push(accessor);
